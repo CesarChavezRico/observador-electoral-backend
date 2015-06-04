@@ -45,8 +45,11 @@ class Distrito(ndb.Model):
             Key of new entity
         """
         try:
-            o = Distrito(national_id=national_id, name=name)
-            key = o.put()
+            if Distrito.exists(national_id):
+                raise DistritoCreationError('Distrito already in platform')
+            else:
+                d = Distrito(national_id=national_id, name=name)
+                key = d.put()
 
         except Exception:
             logging.exception("[distrito] - Error in create Distrito", exc_info=True)

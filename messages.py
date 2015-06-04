@@ -117,3 +117,31 @@ class CreateDistritoResponse(messages.Message):
     ok = messages.BooleanField(1)
     error = messages.StringField(2)
 
+
+"""
+OBSERVACION
+"""
+
+class CreateObservacion(messages.Message):
+    """
+    Message containing the information of a Observacion
+        casilla: national_id
+        observador: email
+        media: file name
+        nota: file name
+    """
+    casilla = messages.StringField(1, required=True)
+    observador = messages.StringField(2, required=True)
+    media = messages.StringField(3)
+    media_type = messages.StringField(4)
+    nota = messages.StringField(5)
+
+
+class CreateObservacionResponse(messages.Message):
+    """
+    Response to observacion creation request
+        ok: (Boolean) Observacion creation successful or failed
+        error: (String) If creation failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    error = messages.StringField(2)

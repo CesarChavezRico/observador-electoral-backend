@@ -11,6 +11,7 @@ import messages
 from observador import Observador, ObservadorCreationError, GetObservadorError
 from casilla import Casilla, CasillaCreationError
 from distrito import Distrito, DistritoCreationError
+from observacion import Observacion, ObservacionCreationError
 
 package = 'ObservadorElectoral'
 
@@ -138,5 +139,37 @@ class ObservadorElectoralBackendApi(remote.Service):
         else:
             resp.ok = True
         return resp
+
+    """
+    OBSERVACION
+    """
+    @endpoints.method(messages.CreateObservacion,
+                      messages.CreateObservacionResponse,
+                      http_method='POST',
+                      name='observacion.create',
+                      path='observacion/create')
+    def new_observacion(self, request):
+        """
+        Generates a new observacion in the platform.
+        """
+        logging.debug("[FrontEnd] - Observacion - Casilla national id = {0}".format(request.casilla))
+        logging.debug("[FrontEnd] - Observacion - Observador = {0}".format(request.observador))
+        logging.debug("[FrontEnd] - Observacion - Media = {0}".format(request.media))
+        logging.debug("[FrontEnd] - Observacion - Media Type = {0}".format(request.media_type))
+        logging.debug("[FrontEnd] - Observacion - Nota = {0}".format(request.nota))
+
+        resp = messages.CreateObservacionResponse()
+        try:
+            Observacion.save_to_datastore(casilla=request.casilla,
+                                          observador=request.observador,
+                                          media=request.media,
+                                          m_type=request.media_type,
+                                          nota=request.nota)
+        except DistritoCreationError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+        return resp
+
 
 app = endpoints.api_server([ObservadorElectoralBackendApi])
