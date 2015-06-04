@@ -10,8 +10,9 @@ import logging
 import messages
 from observador import Observador, ObservadorCreationError, GetObservadorError
 from casilla import Casilla, CasillaCreationError
+from distrito import Distrito, DistritoCreationError
 
-package = 'OCR'
+package = 'ObservadorElectoral'
 
 
 @endpoints.api(name='backend', version='v1', hostname='observador-electoral.appspot.com')
@@ -92,6 +93,8 @@ class ObservadorElectoralBackendApi(remote.Service):
         """
         Generates a new casilla in the platform.
         """
+        logging.debug("[FrontEnd] - Casilla - national id = {0}".format(request.national_id))
+        logging.debug("[FrontEnd] - Distrito - national id = {0}".format(request.distrito))
         logging.debug("[FrontEnd] - casilla name = {0}".format(request.name))
         logging.debug("[FrontEnd] - loc = {0}".format(request.loc))
         logging.debug("[FrontEnd] - address = {0}".format(request.address))
@@ -102,12 +105,38 @@ class ObservadorElectoralBackendApi(remote.Service):
             Casilla.create(loc=request.loc,
                            name=request.name,
                            address=request.address,
-                           picture_url=request.picture_url)
+                           picture_url=request.picture_url,
+                           national_id=request.national_id,
+                           distrito=request.distrito)
         except CasillaCreationError as e:
             resp.error = e.value
         else:
             resp.ok = True
         return resp
 
+    """
+    DISTRITO
+    """
+    @endpoints.method(messages.CreateDistrito,
+                      messages.CreateDistritoResponse,
+                      http_method='POST',
+                      name='distrito.create',
+                      path='distrito/create')
+    def new_distrito(self, request):
+        """
+        Generates a new distrito in the platform.
+        """
+        logging.debug("[FrontEnd] - Distrito - national id = {0}".format(request.national_id))
+        logging.debug("[FrontEnd] - Distrito name = {0}".format(request.name))
+
+        resp = messages.CreateDistritoResponse()
+        try:
+            Distrito.create(name=request.name,
+                            national_id=request.national_id)
+        except DistritoCreationError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+        return resp
 
 app = endpoints.api_server([ObservadorElectoralBackendApi])

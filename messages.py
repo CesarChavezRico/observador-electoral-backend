@@ -72,18 +72,46 @@ CASILLA
 class CreateCasilla(messages.Message):
     """
     Message containing the information of a Casilla
+        national_id: (String) unique identifier of the Casilla in the national database
+        distrito: (String) unique identifier of the Distrito this casilla belongs to
         name: (String)
     """
-    name = messages.StringField(1, required=True)
-    loc = messages.StringField(2, required=True)
-    address = messages.StringField(3, required=True)
-    picture_url = messages.StringField(4, required=True)
+    national_id = messages.StringField(1, required=True)
+    name = messages.StringField(2, required=True)
+    loc = messages.StringField(3, required=True)
+    address = messages.StringField(4, required=True)
+    picture_url = messages.StringField(5, required=True)
+    distrito = messages.StringField(6, required=True)
 
 
 class CreateCasillaResponse(messages.Message):
     """
     Response to casilla creation request
         ok: (Boolean) Casilla creation successful or failed
+        error: (String) If creation failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    error = messages.StringField(2)
+
+
+"""
+DISTRITO
+"""
+
+class CreateDistrito(messages.Message):
+    """
+    Message containing the information of a Distrito
+        national_id: (String) unique identifier of the Casilla in the national database
+        name: (String)
+    """
+    national_id = messages.StringField(1, required=True)
+    name = messages.StringField(2, required=True)
+
+
+class CreateDistritoResponse(messages.Message):
+    """
+    Response to distrito creation request
+        ok: (Boolean) Distrito creation successful or failed
         error: (String) If creation failed, contains the reason, otherwise empty.
     """
     ok = messages.BooleanField(1)
