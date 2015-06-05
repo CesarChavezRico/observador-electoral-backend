@@ -152,6 +152,33 @@ class ObservadorElectoralBackendApi(remote.Service):
             resp.ok = True
         return resp
 
+    @endpoints.method(messages.AssignCasillaToObservador,
+                      messages.AssignCasillaToObservadorResponse,
+                      http_method='POST',
+                      name='casilla.assign',
+                      path='casilla/assign')
+    def assign_casilla(self, request):
+        """
+        Assigns a casilla to a observador
+        """
+        logging.debug("[FrontEnd] - assign - Casilla: {0}".format(request.casilla))
+        logging.debug("[FrontEnd] - assign - Observador: {0}".format(request.observador))
+        resp = messages.AssignCasillaToObservadorResponse()
+        try:
+            r = Casilla.assign_to_observador(email=request.observador, national_id=request.casilla)
+            r_c = messages.Casilla()
+
+            if r:
+                logging.debug("[FrontEnd] - assign - Observador assignment successful")
+            else:
+                logging.debug("[FrontEnd] - assign - Observador assignment failed!!!")
+
+        except Exception as e:
+            resp.error = e.__str__()
+        else:
+            resp.ok = True
+        return resp
+
     """
     DISTRITO
     """

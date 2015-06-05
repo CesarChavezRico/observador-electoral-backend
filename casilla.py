@@ -8,7 +8,7 @@ import logging
 from google.appengine.ext import ndb
 from google.appengine.api import search
 
-from observador import Observador
+from observador import Observador, GetObservadorError
 from distrito import Distrito
 
 
@@ -143,7 +143,7 @@ class Casilla(ndb.Model):
             raise GetCasillaError('Error getting Casilla: '+e.__str__())
 
     @classmethod
-    def assign_to_observador(cls, email, account_number):
+    def assign_to_observador(cls, email, national_id):
         """
         Assigns a Casilla to a observador (email) in the platform.
 
@@ -156,14 +156,14 @@ class Casilla(ndb.Model):
         """
         try:
             o = Observador.get_from_datastore(email)
-            c = Casilla.get_from_datastore(account_number)
+            c = Casilla.get_from_datastore(national_id)
 
             casilla = c.key.get()
             casilla.observador = o.key
             casilla.put()
         except GetCasillaError:
             raise
-        except GetCasillaError:
+        except GetObservadorError:
             raise
         else:
             logging.debug("[Casilla] - assign_to_observador(): Assignment successful!"

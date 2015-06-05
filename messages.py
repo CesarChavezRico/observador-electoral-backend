@@ -111,7 +111,7 @@ class Casilla(messages.Message):
 class GetCasillaDetail(messages.Message):
     """
     Message requesting the detail for a given casilla
-        casilla: url_safe key for the casilla
+        casilla: national id
 
     """
     casilla = messages.StringField(1, required=True)
@@ -121,13 +121,36 @@ class GetCasillaDetail(messages.Message):
 class GetCasillaDetailResponse(messages.Message):
     """
     Response to Casilla detail request.
-        ok: (Boolean) Location creation successful or failed
+        ok: (Boolean)
         Casilla (JSON): Casilla details
         error: (String) If request failed, contains the reason, otherwise empty.
     """
     ok = messages.BooleanField(1)
     casilla = messages.MessageField(Casilla, 2)
     error = messages.StringField(3)
+
+
+class AssignCasillaToObservador(messages.Message):
+    """
+    Message to assign a casilla to a observador
+        casilla: national_id key for the casilla
+        observador: email
+
+    """
+    casilla = messages.StringField(1, required=True)
+    observador = messages.StringField(2, required=True)
+
+
+
+class AssignCasillaToObservadorResponse(messages.Message):
+    """
+    Response to Casilla detail request.
+        ok: (Boolean)
+        error: (String) If request failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    error = messages.StringField(2)
+
 
 """
 DISTRITO
