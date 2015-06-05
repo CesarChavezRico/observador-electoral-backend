@@ -122,8 +122,8 @@ class ObservadorElectoralBackendApi(remote.Service):
     @endpoints.method(messages.GetCasillasAssignedToObservador,
                       messages.GetCasillasAssignedToObservadorResponse,
                       http_method='POST',
-                      name='clasificacion.get_assigned_to_observador',
-                      path='clasificacion/get_assigned_to_observador')
+                      name='casilla.get_assigned_to_observador',
+                      path='casilla/get_assigned_to_observador')
     def get_casillas_assigned_to_observador(self, request):
         """
         Gets all the Casillas assigned to a given Observador.
@@ -251,6 +251,27 @@ class ObservadorElectoralBackendApi(remote.Service):
         else:
             resp.ok = True
             resp.url_safe_key = url_safe_key
+        return resp
+
+    @endpoints.method(messages.GetNumberOfObservaciones,
+                      messages.GetNumberOfObservacionesResponse,
+                      http_method='GET',
+                      name='observacion.get_number',
+                      path='observacion/get_number')
+    def total_number(self, request):
+        """
+        Get the total number of observaciones
+        """
+        logging.debug("[FrontEnd] - Get Number of Observaciones")
+
+        resp = messages.GetNumberOfObservacionesResponse()
+        try:
+            number = Observacion.count()
+        except ObservacionCreationError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+            resp.number_of_observaciones = number
         return resp
 
     """

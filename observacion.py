@@ -80,6 +80,26 @@ class Observacion(ndb.Model):
                 logging.debug("[Observacion] = {0}".format(r))
             return observaciones
 
+    @classmethod
+    def count(cls):
+        """
+        Gets the total number of observaciones
+            :return: number
+
+        """
+        try:
+            query_response = Observacion.query()
+            number = query_response.count()
+            if number > 0:
+                pass
+            else:
+                raise GetObservacionError('No Observaciones found')
+        except Exception as e:
+            logging.exception("[Observacion] - "+e.message)
+            raise GetObservacionError('Error getting Observaciones: '+e.__str__())
+        else:
+            return number
+
 
 class ObservacionCreationError(Exception):
     def __init__(self, value):

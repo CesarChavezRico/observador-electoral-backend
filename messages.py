@@ -159,7 +159,6 @@ class AssignCasillaToObservador(messages.Message):
     observador = messages.StringField(2, required=True)
 
 
-
 class AssignCasillaToObservadorResponse(messages.Message):
     """
     Response to Casilla detail request.
@@ -221,6 +220,26 @@ class CreateObservacionResponse(messages.Message):
     """
     ok = messages.BooleanField(1)
     url_safe_key = messages.StringField(2)
+    error = messages.StringField(3)
+
+
+class GetNumberOfObservaciones(messages.Message):
+    """
+    Message the casillas assigned to a given observador
+        email: observador
+
+    """
+
+
+class GetNumberOfObservacionesResponse(messages.Message):
+    """
+    Response to Casilla detail request.
+        ok: (Boolean)
+        number_of_observaciones (Int):
+        error: (String) If request failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    number_of_observaciones = messages.IntegerField(2)
     error = messages.StringField(3)
 
 """
