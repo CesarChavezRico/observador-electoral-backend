@@ -9,7 +9,7 @@ from protorpc import remote
 import logging
 import messages
 from observador import Observador, ObservadorCreationError, GetObservadorError
-from casilla import Casilla, CasillaCreationError
+from casilla import Casilla, CasillaCreationError, GetCasillaError
 from distrito import Distrito, DistritoCreationError
 from observacion import Observacion, ObservacionCreationError
 from location import Location, LocationCreationError
@@ -114,6 +114,39 @@ class ObservadorElectoralBackendApi(remote.Service):
                            national_id=request.national_id,
                            distrito=request.distrito)
         except CasillaCreationError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+        return resp
+
+    @endpoints.method(messages.GetCasillaDetail,
+                      messages.GetCasillaDetailResponse,
+                      http_method='POST',
+                      name='casilla.get',
+                      path='casilla/get')
+    def get_casilla(self, request):
+        """
+        Gets the details of a given casilla national_id.
+        """
+        logging.debug("[FrontEnd] - get_casilla_details - Casilla: {0}".format(request.casilla))
+        resp = messages.GetCasillaDetailResponse()
+        try:
+            r = Casilla.get_from_datastore(request.casilla)
+            r_c = messages.Casilla()
+
+            if r.observador:
+                r_c.observador = r.observador.urlsafe()
+            else:
+                r_c.observador = 'Observador no Asignado'
+            r_c.distrito = r.distrito.urlsafe()
+            r_c.national_id = r.national_id
+            r_c.loc = str(r.loc)
+            r_c.name = r.name
+            r_c.address = r.address
+            r_c.picture_url = r.picture_url
+
+            resp.casilla = r_c
+        except GetClasificacionError as e:
             resp.error = e.value
         else:
             resp.ok = True
@@ -244,6 +277,13 @@ class ObservadorElectoralBackendApi(remote.Service):
         except LocationCreationError as e:
             resp.error = e.value
         else:
+            try:
+                # Find a near casilla
+                c = Casilla.get_based_on_location(request.loc, 10)
+            except GetCasillaError as e:
+                resp.error = e.value
+            else:
+                resp.casilla_near = c.key.urlsafe()
             resp.ok = True
         return resp
 
@@ -315,11 +355,11 @@ class ObservadorElectoralBackendApi(remote.Service):
                       http_method='POST',
                       name='clasificacion.get_detail',
                       path='clasificacion/get_detail')
-    def get_all_clasificaciones(self, request):
+    def get_clasificacion_details(self, request):
         """
         Gets the details of a given clasificacion.
         """
-        logging.debug("[FrontEnd] - get_details - Clasificacion: {0}".format(request.clasificacion))
+        logging.debug("[FrontEnd] - get_clasificacion_details - Clasificacion: {0}".format(request.clasificacion))
         resp = messages.GetClasificacionDetailsResponse()
         try:
             r = Clasificacion.get_details(request.clasificacion)

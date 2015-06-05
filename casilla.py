@@ -90,7 +90,7 @@ class Casilla(ndb.Model):
     @classmethod
     def get_from_datastore(cls, national_id):
         """
-        Gets a casilla from datastore based on its location
+        Gets a casilla from datastore based on its id
             :returns Casilla object
         """
         try:
@@ -110,6 +110,37 @@ class Casilla(ndb.Model):
             logging.debug("[Casilla] - address = {0}".format(u[0].address))
             logging.debug("[Casilla] - picture_url = {0}".format(u[0].picture_url))
             return u[0]
+
+    @classmethod
+    def get_based_on_location(cls, loc, radius):
+        """
+        Gets a casilla from datastore based on its location (lat,long)
+            :returns Casilla object
+        """
+        try:
+            lat, lng = str(loc).split(',')
+            # Search nearby Casillas in LocationsIndex (SearchAPI)
+            index = search.Index('CasillasIndex')
+            query = "distance(loc, geopoint(" + str(lat) + "," + str(lng) + ")) < " + str(radius)
+            results = index.search(query)
+            for doc in results:
+                key = doc.field("key").value
+                logging.info('[Casilla] - Document! ' + str(key))
+                dummy, c_id = key.split(',')
+                c_id = c_id[:-1]
+                logging.debug('[Casilla] - Casilla ID: ' + str(int(c_id)))
+                c = Casilla.get_by_id(int(c_id))
+                if c:
+                    logging.debug('[Casilla] - Casilla: ' + str(c))
+                    return c
+                else:
+                    logging.exception('[Casilla] - Error in DataStore search! (index different than DataStore?)')
+            logging.debug('[Casilla] - Results Found =  ' + str(results.number_found))
+            if results.number_found == 0:
+                raise GetCasillaError('No near Casillas found')
+
+        except Exception as e:
+            raise GetCasillaError('Error getting Casilla: '+e.__str__())
 
     @classmethod
     def assign_to_observador(cls, email, account_number):
@@ -139,6 +170,7 @@ class Casilla(ndb.Model):
                           " casilla = {0} assigned to observador = {1}"
                           .format(casilla.national_id, o.email))
             return True
+
 
 
 

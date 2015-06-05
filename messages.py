@@ -95,6 +95,40 @@ class CreateCasillaResponse(messages.Message):
     error = messages.StringField(2)
 
 
+class Casilla(messages.Message):
+    """
+    Casilla entity for details response
+    """
+    observador = messages.StringField(1)
+    distrito = messages.StringField(2)
+    national_id = messages.StringField(3)
+    loc = messages.StringField(4)
+    name = messages.StringField(5)
+    address = messages.StringField(6)
+    picture_url = messages.StringField(7)
+
+
+class GetCasillaDetail(messages.Message):
+    """
+    Message requesting the detail for a given casilla
+        casilla: url_safe key for the casilla
+
+    """
+    casilla = messages.StringField(1, required=True)
+
+
+
+class GetCasillaDetailResponse(messages.Message):
+    """
+    Response to Casilla detail request.
+        ok: (Boolean) Location creation successful or failed
+        Casilla (JSON): Casilla details
+        error: (String) If request failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    casilla = messages.MessageField(Casilla, 2)
+    error = messages.StringField(3)
+
 """
 DISTRITO
 """
@@ -220,10 +254,12 @@ class CreateLocationResponse(messages.Message):
     """
     Response to location creation request
         ok: (Boolean) Location creation successful or failed
+        casilla_near: (String) URL safe key of a casilla if one is close enough
         error: (String) If creation failed, contains the reason, otherwise empty.
     """
     ok = messages.BooleanField(1)
-    error = messages.StringField(2)
+    casilla_near = messages.StringField(2)
+    error = messages.StringField(3)
 
 """
 CLASIFICACION
