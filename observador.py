@@ -61,6 +61,10 @@ class Observador(ndb.Model):
     def get_from_datastore(cls, email):
         """
         Gets observador from datastore based on email
+        :param:
+            email: unique identifier of the Observador
+        :return:
+            observador object from the datastore
         """
         try:
             if Observador.exists(email):

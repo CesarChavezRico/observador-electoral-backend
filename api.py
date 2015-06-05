@@ -12,6 +12,7 @@ from observador import Observador, ObservadorCreationError, GetObservadorError
 from casilla import Casilla, CasillaCreationError
 from distrito import Distrito, DistritoCreationError
 from observacion import Observacion, ObservacionCreationError
+from location import Location, LocationCreationError
 
 package = 'ObservadorElectoral'
 
@@ -165,7 +166,31 @@ class ObservadorElectoralBackendApi(remote.Service):
                                           media=request.media,
                                           m_type=request.media_type,
                                           nota=request.nota)
-        except DistritoCreationError as e:
+        except ObservacionCreationError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+        return resp
+
+    """
+    LOCATION
+    """
+    @endpoints.method(messages.CreateLocation,
+                      messages.CreateLocationResponse,
+                      http_method='POST',
+                      name='location.create',
+                      path='location/create')
+    def new_location(self, request):
+        """
+        Generates a new location in the platform.
+        """
+        logging.debug("[FrontEnd] - Observacion - Observador = {0}".format(request.observador))
+        logging.debug("[FrontEnd] - Observacion - Loc = {0}".format(request.loc))
+
+        resp = messages.CreateLocationResponse()
+        try:
+            Location.create(observador=request.observador, loc=request.loc)
+        except LocationCreationError as e:
             resp.error = e.value
         else:
             resp.ok = True

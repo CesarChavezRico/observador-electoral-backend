@@ -145,3 +145,28 @@ class CreateObservacionResponse(messages.Message):
     """
     ok = messages.BooleanField(1)
     error = messages.StringField(2)
+
+"""
+LOCATION
+"""
+
+class CreateLocation(messages.Message):
+    """
+    Message containing the information of a Location
+        loc: coordinates
+        observador: email
+
+    """
+    loc = messages.StringField(1, required=True)
+    observador = messages.StringField(2, required=True)
+
+
+
+class CreateLocationResponse(messages.Message):
+    """
+    Response to location creation request
+        ok: (Boolean) Location creation successful or failed
+        error: (String) If creation failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    error = messages.StringField(2)

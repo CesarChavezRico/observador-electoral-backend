@@ -42,7 +42,7 @@ class Observacion(ndb.Model):
             c = Casilla.get_from_datastore(casilla)
             o = Observador.get_from_datastore(observador)
             m = Media.create(name=media, m_type=m_type)
-            n = Nota.create(nota)
+            n = Nota.create(name=nota)
             new = Observacion(casilla=c.key,
                               observador=o.key,
                               media=m,
