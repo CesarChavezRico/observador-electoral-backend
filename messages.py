@@ -132,15 +132,66 @@ class CreateObservacion(messages.Message):
     """
     casilla = messages.StringField(1, required=True)
     observador = messages.StringField(2, required=True)
-    media = messages.StringField(3)
-    media_type = messages.StringField(4)
-    nota = messages.StringField(5)
 
 
 class CreateObservacionResponse(messages.Message):
     """
     Response to observacion creation request
         ok: (Boolean) Observacion creation successful or failed
+        url_safe_key: (String) If creation successful the url safe key of the new observacion
+        error: (String) If creation failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    url_safe_key = messages.StringField(2)
+    error = messages.StringField(3)
+
+"""
+MEDIA
+"""
+
+class CreateMedia(messages.Message):
+    """
+    Message containing the information of a new Media
+        name: unique name of the media in the bucket. App created
+        observacion: url safe key of the observacion
+        m_type: type of media [video, photo, audio]
+
+    """
+    name = messages.StringField(1, required=True)
+    observacion = messages.StringField(2, required=True)
+    m_type = messages.StringField(3, required=True)
+
+
+
+class CreateMediaResponse(messages.Message):
+    """
+    Response to media creation request
+        ok: (Boolean) Media creation successful or failed
+        error: (String) If creation failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    error = messages.StringField(2)
+
+"""
+NOTA
+"""
+
+class CreateNota(messages.Message):
+    """
+    Message containing the information of a new Nota
+        name: unique name of the media in the bucket. App created
+        observacion: url safe key of the observacion
+
+    """
+    name = messages.StringField(1, required=True)
+    observacion = messages.StringField(2, required=True)
+
+
+
+class CreateNotaResponse(messages.Message):
+    """
+    Response to nota creation request
+        ok: (Boolean) Nota creation successful or failed
         error: (String) If creation failed, contains the reason, otherwise empty.
     """
     ok = messages.BooleanField(1)
@@ -170,3 +221,4 @@ class CreateLocationResponse(messages.Message):
     """
     ok = messages.BooleanField(1)
     error = messages.StringField(2)
+

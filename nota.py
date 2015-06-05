@@ -6,6 +6,7 @@ __author__ = 'Cesar'
 
 import logging
 from google.appengine.ext import ndb
+from observacion import Observacion
 
 
 class Nota(ndb.Model):
@@ -16,6 +17,7 @@ class Nota(ndb.Model):
     """
 
     created = ndb.DateTimeProperty(auto_now_add=True)
+    observacion = ndb.KeyProperty(kind=Observacion)
     name = ndb.StringProperty()
 
     @classmethod
@@ -32,11 +34,12 @@ class Nota(ndb.Model):
         return cls.query(cls.name == name).count(1) == 1
 
     @classmethod
-    def create(cls, name):
+    def create(cls, observacion, name):
         """
         Creates a new nota in the datastore.
         Args:
             - name: String holding the unique name of the nota (app created)
+            - observacion: url safe key for the related observacion
 
         Returns:
             Key of new entity
@@ -45,7 +48,8 @@ class Nota(ndb.Model):
             if Nota.exists(name):
                 raise NotaCreationError('Nota already exists in platform')
             else:
-                m = Nota(name=name)
+                o_key = ndb.Key(urlsafe=observacion)
+                m = Nota(observacion=o_key, name=name)
                 key = m.put()
 
         except Exception:
@@ -69,6 +73,7 @@ class Nota(ndb.Model):
                 raise GetNotaError('Error getting Nota: '+e.__str__())
         else:
             logging.debug("[Nota] - Key = {0}".format(n[0].key))
+            logging.debug("[Nota] - Observacion = {0}".format(n[0].observacion))
             logging.debug("[Nota] - name = {0}".format(n[0].name))
             return n[0]
 

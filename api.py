@@ -13,6 +13,8 @@ from casilla import Casilla, CasillaCreationError
 from distrito import Distrito, DistritoCreationError
 from observacion import Observacion, ObservacionCreationError
 from location import Location, LocationCreationError
+from media import Media, MediaCreationError
+from nota import Nota, NotaCreationError
 
 package = 'ObservadorElectoral'
 
@@ -155,18 +157,62 @@ class ObservadorElectoralBackendApi(remote.Service):
         """
         logging.debug("[FrontEnd] - Observacion - Casilla national id = {0}".format(request.casilla))
         logging.debug("[FrontEnd] - Observacion - Observador = {0}".format(request.observador))
-        logging.debug("[FrontEnd] - Observacion - Media = {0}".format(request.media))
-        logging.debug("[FrontEnd] - Observacion - Media Type = {0}".format(request.media_type))
-        logging.debug("[FrontEnd] - Observacion - Nota = {0}".format(request.nota))
 
         resp = messages.CreateObservacionResponse()
         try:
-            Observacion.save_to_datastore(casilla=request.casilla,
-                                          observador=request.observador,
-                                          media=request.media,
-                                          m_type=request.media_type,
-                                          nota=request.nota)
+            url_safe_key = Observacion.save_to_datastore(casilla=request.casilla,
+                                                         observador=request.observador)
         except ObservacionCreationError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+            resp.url_safe_key = url_safe_key
+        return resp
+
+    """
+    MEDIA
+    """
+    @endpoints.method(messages.CreateMedia,
+                      messages.CreateMediaResponse,
+                      http_method='POST',
+                      name='media.create',
+                      path='media/create')
+    def new_media(self, request):
+        """
+        Generates a new media in the platform.
+        """
+        logging.debug("[FrontEnd] - Media - Name = {0}".format(request.name))
+        logging.debug("[FrontEnd] - Media - Observacion = {0}".format(request.observacion))
+        logging.debug("[FrontEnd] - Media - Type = {0}".format(request.m_type))
+
+        resp = messages.CreateMediaResponse()
+        try:
+            Media.create(observacion=request.observacion, name=request.name, m_type=request.m_type)
+        except MediaCreationError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+        return resp
+
+    """
+    NOTA
+    """
+    @endpoints.method(messages.CreateNota,
+                      messages.CreateNotaResponse,
+                      http_method='POST',
+                      name='nota.create',
+                      path='nota/create')
+    def new_nota(self, request):
+        """
+        Generates a new nota in the platform.
+        """
+        logging.debug("[FrontEnd] - Nota - Name = {0}".format(request.name))
+        logging.debug("[FrontEnd] - Nota - Observacion = {0}".format(request.observacion))
+
+        resp = messages.CreateNotaResponse()
+        try:
+            Nota.create(observacion=request.observacion, name=request.name)
+        except NotaCreationError as e:
             resp.error = e.value
         else:
             resp.ok = True

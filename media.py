@@ -6,17 +6,20 @@ __author__ = 'Cesar'
 
 import logging
 from google.appengine.ext import ndb
+from observacion import Observacion
 
 
 class Media(ndb.Model):
     """
     Represents a media within the platform.
 
-        - type: type of media [video, photo, audio]
+        - observacion:
+        - m_type: type of media [video, photo, audio]
         - name: unique id for media file in bucket
     """
 
     created = ndb.DateTimeProperty(auto_now_add=True)
+    observacion = ndb.KeyProperty(kind=Observacion)
     m_type = ndb.StringProperty(choices=['video', 'photo', 'audio'])
     name = ndb.StringProperty()
 
@@ -34,10 +37,11 @@ class Media(ndb.Model):
         return cls.query(cls.name == name).count(1) == 1
 
     @classmethod
-    def create(cls, m_type, name):
+    def create(cls, m_type, name, observacion):
         """
         Creates a new media in the datastore.
         Args:
+            - observacion: URL safe key of the related observacion
             - m_type: String holding the type for media
             - name: String holding the unique name of the media (app created)
 
@@ -48,7 +52,8 @@ class Media(ndb.Model):
             if Media.exists(name):
                 raise MediaCreationError('Media already exists in platform')
             else:
-                m = Media(m_type=m_type, name=name)
+                o_key = ndb.Key(urlsafe=observacion)
+                m = Media(observacion=o_key, m_type=m_type, name=name)
                 key = m.put()
 
         except Exception:
@@ -72,6 +77,7 @@ class Media(ndb.Model):
                 raise GetMediaError('Error getting Media: '+e.__str__())
         else:
             logging.debug("[Media] - Key = {0}".format(m[0].key))
+            logging.debug("[Media] - Observacion = {0}".format(m[0].observacion))
             logging.debug("[Media] - type = {0}".format(m[0].type))
             logging.debug("[Media] - name = {0}".format(m[0].name))
             return m[0]
