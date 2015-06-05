@@ -91,6 +91,7 @@ class Casilla(ndb.Model):
     def get_from_datastore(cls, national_id):
         """
         Gets a casilla from datastore based on its location
+            :returns Casilla object
         """
         try:
             if Casilla.exists(national_id):

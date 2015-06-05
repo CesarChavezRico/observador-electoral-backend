@@ -6,6 +6,7 @@ __author__ = 'Cesar'
 
 from protorpc import messages
 
+
 """
 OBSERVADOR
 """
@@ -132,6 +133,8 @@ class CreateObservacion(messages.Message):
     """
     casilla = messages.StringField(1, required=True)
     observador = messages.StringField(2, required=True)
+    clasificacion = messages.StringField(3, required=True)
+    filled_checklist = messages.StringField(4, required=True)
 
 
 class CreateObservacionResponse(messages.Message):
@@ -222,3 +225,101 @@ class CreateLocationResponse(messages.Message):
     ok = messages.BooleanField(1)
     error = messages.StringField(2)
 
+"""
+CLASIFICACION
+"""
+
+class CreateClasificacion(messages.Message):
+    """
+    Message containing the information of a Clasificacion
+        - name: String holding the name of the Clasificacion
+        - checklist: JSON string of the checklist to fill for this Clasificacion
+        - repeatable: Can only be performed once for a given Casilla
+
+    """
+    name = messages.StringField(1, required=True)
+    checklist = messages.StringField(2, required=True)
+    repeatable = messages.BooleanField(3, required=True)
+
+
+
+class CreateClasificacionResponse(messages.Message):
+    """
+    Response to clasificacion creation request
+        ok: (Boolean) Clasificacion creation successful or failed
+        error: (String) If creation failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    error = messages.StringField(2)
+
+
+class GetAvailableClasificaciones(messages.Message):
+    """
+    Message requesting the available clasificaciones for a given casilla
+        casilla: national_id (String) unique identifier of the Casilla in the national database
+
+    """
+    casilla = messages.StringField(1, required=True)
+
+
+
+class GetAvailableClasificacionesResponse(messages.Message):
+    """
+    Response to available clasificaciones request. Contains the URL safe keys of the available clasificaciones
+        ok: (Boolean) Location creation successful or failed
+        clasificacion (String): An available clasificacion for the requested casilla
+        error: (String) If creation failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    clasificacion = messages.StringField(2, repeated=True)
+    error = messages.StringField(3)
+
+
+class GetAllClasificaciones(messages.Message):
+    """
+    Message requesting all the clasificaciones of the platform
+
+    """
+
+
+
+class GetAllClasificacionesResponse(messages.Message):
+    """
+    Response to all clasificaciones request. Contains the URL safe keys of the clasificaciones
+        ok: (Boolean) Location creation successful or failed
+        clasificacion (String): A clasificacion
+        error: (String) If creation failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    clasificacion = messages.StringField(2, repeated=True)
+    error = messages.StringField(3)
+
+
+class Clasificacion(messages.Message):
+    """
+    Clasificacion entity for details response
+    """
+    name = messages.StringField(1)
+    checklist = messages.StringField(2)
+    repeatable = messages.BooleanField(3)
+
+
+class GetClasificacionDetails(messages.Message):
+    """
+    Message requesting the details of a given clasificacion
+        clasificacion: url_safe_key (String) of the desired clasificacion
+
+    """
+    clasificacion = messages.StringField(1, required=True)
+
+
+class GetClasificacionDetailsResponse(messages.Message):
+    """
+    Response to clasificacion details request.
+        ok: (Boolean) Location creation successful or failed
+        clasificacion (JSON): Details of a Clasificacion
+        error: (String) If creation failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    clasificacion = messages.MessageField(Clasificacion, 2)
+    error = messages.StringField(3)

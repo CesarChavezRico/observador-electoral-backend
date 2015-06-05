@@ -15,6 +15,7 @@ from observacion import Observacion, ObservacionCreationError
 from location import Location, LocationCreationError
 from media import Media, MediaCreationError
 from nota import Nota, NotaCreationError
+from clasificacion import Clasificacion, GetClasificacionError, ClasificacionCreationError
 
 package = 'ObservadorElectoral'
 
@@ -157,11 +158,15 @@ class ObservadorElectoralBackendApi(remote.Service):
         """
         logging.debug("[FrontEnd] - Observacion - Casilla national id = {0}".format(request.casilla))
         logging.debug("[FrontEnd] - Observacion - Observador = {0}".format(request.observador))
+        logging.debug("[FrontEnd] - Observacion - Clasificacion = {0}".format(request.clasificacion))
+        logging.debug("[FrontEnd] - Observacion - Filled Checklist = {0}".format(request.filled_checklist))
 
         resp = messages.CreateObservacionResponse()
         try:
             url_safe_key = Observacion.save_to_datastore(casilla=request.casilla,
-                                                         observador=request.observador)
+                                                         observador=request.observador,
+                                                         clasificacion=request.clasificacion,
+                                                         filled_checklist=request.filled_checklist)
         except ObservacionCreationError as e:
             resp.error = e.value
         else:
@@ -242,5 +247,91 @@ class ObservadorElectoralBackendApi(remote.Service):
             resp.ok = True
         return resp
 
+    """
+    CLASIFICACION
+    """
+    @endpoints.method(messages.CreateClasificacion,
+                      messages.CreateClasificacionResponse,
+                      http_method='POST',
+                      name='clasificacion.create',
+                      path='clasificacion/create')
+    def new_clasificacion(self, request):
+        """
+        Generates a new clasificacion in the platform.
+        """
+        logging.debug("[FrontEnd] - Clasificacion - Name = {0}".format(request.name))
+        logging.debug("[FrontEnd] - Clasificacion - Checklist = {0}".format(request.checklist))
+        logging.debug("[FrontEnd] - Clasificacion - Repeatable = {0}".format(request.repeatable))
+
+        resp = messages.CreateClasificacionResponse()
+        try:
+            Clasificacion.create(name=request.name, checklist=request.checklist, repeatable=request.repeatable)
+        except ClasificacionCreationError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+        return resp
+
+    @endpoints.method(messages.GetAvailableClasificaciones,
+                      messages.GetAvailableClasificacionesResponse,
+                      http_method='POST',
+                      name='clasificacion.get_available',
+                      path='clasificacion/get_available')
+    def get_clasificaciones(self, request):
+        """
+        Gets all the available clasificaciones for a given Casilla.
+        """
+        logging.debug("[FrontEnd] - Get Available Clasificaciones - Casilla = {0}".format(request.casilla))
+        resp = messages.GetAvailableClasificacionesResponse()
+        try:
+            resp.clasificacion = Clasificacion.get_available(request.casilla)
+        except GetClasificacionError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+        return resp
+
+    @endpoints.method(messages.GetAllClasificaciones,
+                      messages.GetAllClasificacionesResponse,
+                      http_method='POST',
+                      name='clasificacion.get_all',
+                      path='clasificacion/get_all')
+    def get_all_clasificaciones(self, request):
+        """
+        Gets all clasificaciones.
+        """
+        logging.debug("[FrontEnd] - Get All Clasificaciones")
+        resp = messages.GetAllClasificacionesResponse()
+        try:
+            resp.clasificacion = Clasificacion.get_all()
+        except GetClasificacionError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+        return resp
+
+    @endpoints.method(messages.GetClasificacionDetails,
+                      messages.GetClasificacionDetailsResponse,
+                      http_method='POST',
+                      name='clasificacion.get_detail',
+                      path='clasificacion/get_detail')
+    def get_all_clasificaciones(self, request):
+        """
+        Gets the details of a given clasificacion.
+        """
+        logging.debug("[FrontEnd] - get_details - Clasificacion: {0}".format(request.clasificacion))
+        resp = messages.GetClasificacionDetailsResponse()
+        try:
+            r = Clasificacion.get_details(request.clasificacion)
+            r_c = messages.Clasificacion()
+            r_c.name = r.name
+            r_c.checklist = r.checklist
+            r_c.repeatable = r.repeatable
+            resp.clasificacion = r_c
+        except GetClasificacionError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+        return resp
 
 app = endpoints.api_server([ObservadorElectoralBackendApi])
