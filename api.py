@@ -119,6 +119,25 @@ class ObservadorElectoralBackendApi(remote.Service):
             resp.ok = True
         return resp
 
+    @endpoints.method(messages.GetCasillasAssignedToObservador,
+                      messages.GetCasillasAssignedToObservadorResponse,
+                      http_method='POST',
+                      name='clasificacion.get_assigned_to_observador',
+                      path='clasificacion/get_assigned_to_observador')
+    def get_casillas_assigned_to_observador(self, request):
+        """
+        Gets all the Casillas assigned to a given Observador.
+        """
+        logging.debug("[FrontEnd] - Get Casillas Assigned to Observador - Observador = {0}".format(request.email))
+        resp = messages.GetCasillasAssignedToObservadorResponse()
+        try:
+            resp.casillas = Casilla.get_based_on_observador(email=request.email)
+        except GetCasillaError as e:
+            resp.error = e.value
+        else:
+            resp.ok = True
+        return resp
+
     @endpoints.method(messages.GetCasillaDetail,
                       messages.GetCasillaDetailResponse,
                       http_method='POST',

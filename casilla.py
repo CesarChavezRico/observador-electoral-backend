@@ -143,6 +143,31 @@ class Casilla(ndb.Model):
             raise GetCasillaError('Error getting Casilla: '+e.__str__())
 
     @classmethod
+    def get_based_on_observador(cls, email):
+        """
+        Gets all casillas from datastore based on observador assigned to them
+            :returns list of Casilla object
+        """
+        try:
+            observador = Observador.get_from_datastore(email=email)
+            query_response = Casilla.query(Casilla.observador == observador.key).fetch()
+            casillas = []
+            for c in query_response:
+                casillas.append(c.key.urlsafe())
+            if casillas:
+                pass
+            else:
+                raise GetCasillaError('No casillas assigned to observador: {0}'.format(email))
+
+        except Exception as e:
+            raise GetCasillaError('Error getting Casilla: '+e.__str__())
+
+        else:
+            for c in casillas:
+                logging.debug("[Casilla] = {0}".format(c))
+            return casillas
+
+    @classmethod
     def assign_to_observador(cls, email, national_id):
         """
         Assigns a Casilla to a observador (email) in the platform.

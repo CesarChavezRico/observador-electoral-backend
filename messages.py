@@ -116,8 +116,6 @@ class GetCasillaDetail(messages.Message):
     """
     casilla = messages.StringField(1, required=True)
 
-
-
 class GetCasillaDetailResponse(messages.Message):
     """
     Response to Casilla detail request.
@@ -127,6 +125,26 @@ class GetCasillaDetailResponse(messages.Message):
     """
     ok = messages.BooleanField(1)
     casilla = messages.MessageField(Casilla, 2)
+    error = messages.StringField(3)
+
+
+class GetCasillasAssignedToObservador(messages.Message):
+    """
+    Message the casillas assigned to a given observador
+        email: observador
+
+    """
+    email = messages.StringField(1, required=True)
+
+class GetCasillasAssignedToObservadorResponse(messages.Message):
+    """
+    Response to Casilla detail request.
+        ok: (Boolean)
+        Casilla (String): List of urlsafe casilla keys
+        error: (String) If request failed, contains the reason, otherwise empty.
+    """
+    ok = messages.BooleanField(1)
+    casillas = messages.StringField(2, repeated=True)
     error = messages.StringField(3)
 
 
